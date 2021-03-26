@@ -17,8 +17,9 @@ RSpec.describe 'Users API', type: :request do
 
         context 'when the user exists' do
             it 'returns the user' do
-                user_response = JSON.parse(response.body)
-                expect(user_response['id']).to eq(user_id)  # texta se o id retornado é igual ao user_id
+                user_response = JSON.parse(response.body, symbolize_names: true) # symbolyze_names=true faz com que
+                                                                # JSON.parse use index tipo simbolo ao invés de string
+                expect(user_response[:id]).to eq(user_id)  # texta se o id retornado é igual ao user_id
             end
 
             it 'returns status code 200' do  # 200=OK https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
@@ -49,9 +50,9 @@ RSpec.describe 'Users API', type: :request do
             end
 
             it 'returns json data for the created user' do
-                user_response = JSON.parse(response.body)
-                expect(user_response['email']).to eq(user_params[:email])   # JSON.parse usa index tipo string
-                                                                            # FactoryGirl usa index tipo simbolo
+                user_response = JSON.parse(response.body, symbolize_names: true) # symbolyze_names=true faz com que
+                                                                    # JSON.parse use index tipo simbolo ao invés de string
+                expect(user_response[:email]).to eq(user_params[:email])   
             end
         end
    
@@ -63,8 +64,8 @@ RSpec.describe 'Users API', type: :request do
             end
         
             it 'returns json data for the error' do
-                user_response = JSON.parse(response.body)
-                expect(user_response).to have_key('errors')
+                user_response = JSON.parse(response.body, symbolize_names: true)
+                expect(user_response).to have_key(:errors)
             end
         end
    
