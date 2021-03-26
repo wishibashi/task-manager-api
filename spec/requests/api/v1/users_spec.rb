@@ -24,6 +24,7 @@ RSpec.describe 'Users API', type: :request do
             it 'returns status code 200' do  # 200=OK https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
                 expect(response).to have_http_status(200)
             end
+        end 
 
         context 'when the user does not exist' do
             let(:user_id) { 10000 }    # sobrescrevo user_id com um valor inexistente
@@ -31,7 +32,42 @@ RSpec.describe 'Users API', type: :request do
                 expect(response).to have_http_status(404)
             end
         end
-            
-        end
     end
+
+    describe 'POST /users' do
+        before do
+            headers = { 'Accept' => 'application/vnd.taskmanager.v1' }
+            # user_params = { email: 'teste@email.com', password: '123456', password_confirmation: '123456' }
+            post '/users', params: { user: user_params }, headers: headers
+        end
+        
+        context 'when the request param are valid' do
+            let(:user_params) { FactoryGirl.attributes_for(:user) }     # o FactoryGirl monta um hash com todos os 
+                                                                        # atributos definidos /spec/factories
+            it 'return status code 201' do
+                expect(response).to have_http_status(201)               # 201=request has been fulfilled
+            end
+
+            it 'returns json data for the created user' do
+                user_response = JSON.parse(response.body)
+                expect(user_response['email']).to eq(user_params[:email])   # JSON.parse usa index tipo string
+                                                                            # FactoryGirl usa index tipo simbolo
+            end
+        end
+   
+        context 'when the request param are invalid' do
+            let(:user_params) { FactoryGirl.attributes_for(:user, email: 'invalid_email@') }  # sobrescrevendo email do FactoryGirl
+     
+            it 'return status code 422' do
+                expect(response).to have_http_status(422)               # 422=Unprocessable Entity
+            end
+        
+            it 'returns json data for the error' do
+                user_response = JSON.parse(response.body)
+                expect(user_response).to have_key('errors')
+            end
+        end
+   
+    end
+
 end
