@@ -106,4 +106,22 @@ RSpec.describe 'Users API', type: :request do
    
     end
 
+    describe 'DELETE /users/:id' do
+        before do
+            headers = { 'Accept' => 'application/vnd.taskmanager.v1' }
+            delete "/users/#{user_id}", params: {}, headers: headers    # define a URL, o corpo em branco, headers do get
+                                                                       # para se concatenar variável não se pode utilizar aspas simples
+        end
+       
+        it 'returns status code 204' do  
+            expect(response).to have_http_status(204)       # 204=Successful: No Content
+        end
+
+        it 'removes the user from database' do
+            expect( User.find_by(id: user.id) ).to be_nil  # User.find daria erro por não encontrar, User.find_by 
+                                                    # simplesmente retorna nil
+        end
+        
+    end
+
 end
